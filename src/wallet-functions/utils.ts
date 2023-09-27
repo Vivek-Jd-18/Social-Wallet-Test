@@ -1,7 +1,7 @@
 import { chainHexObj, setProvider } from "./chainHelpers";
 import axios from "axios";
 import { transferBTC } from "./bitCoinHelper";
-import { estimateGasFeesType, sendNativeType, transactionType } from "./types";
+import { balanceType, estimateGasFeesType, sendNativeType, transactionType } from "./types";
 import Moralis from "moralis";
 const { errors, ethers, utils } = require("ethers");
 const { HDKey } = require("wallet.ts");
@@ -15,14 +15,14 @@ export function _fetchAccountsByIndex(phrase: any, index: number, env: string) {
     const seed = bip39.mnemonicToSeedSync(phrase, "");
     const bitcoinseed = Buffer.from(seed);
     const bitcoinWallet = BitcoinWallet(bitcoinseed, index, env);
-    const etherwallet = Etherwallet(seed, index);
-    const tronwallet = Tronwallet(seed, index);
-    // console.log(phrase, bitcoinWallet, etherwallet, tronwallet);
+    const ethereumWallet = Etherwallet(seed, index);
+    const tronWallet = Tronwallet(seed, index);
+    // //console.log(phrase, bitcoinWallet, etherwallet, tronwallet);
     return {
         phrase,
         bitcoinWallet,
-        etherwallet,
-        tronwallet,
+        ethereumWallet,
+        tronWallet
     };
 }
 
@@ -40,18 +40,15 @@ function BitcoinWallet(seed: any, index: number, env: string) {
             pubkey: keyPair.publicKey,
             network: network,
         });
-        // console.log(address, "bitcoin address");
+        // //console.log(address, "bitcoin address");
         const BitcoinPublicKey = keyPair.publicKey?.toString("hex");
 
-        // console.log(
-        //   BitcoinPublicKey,
-        //   "BitcoinPublicKeyBitcoinPublicKeyBitcoinPublicKey"
-        // );
-        // console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
+        // //console.log(BitcoinPublicKey,"BitcoinPublicKeyBitcoinPublicKeyBitcoinPublicKey");
+        // //console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
         return {
-            address,
-            BitcoinPublicKey,
-            BitcoinPrivateKey,
+            bitcoinAddress: address,
+            bitcoinPublicKey: BitcoinPublicKey,
+            bitcoinPrivateKey: BitcoinPrivateKey
         };
     } else if (env == "mainnet") {
         const path = "m/44'/0'/0'/0/" + index;
@@ -59,7 +56,7 @@ function BitcoinWallet(seed: any, index: number, env: string) {
         const masterNode = bitcoin.bip32.fromSeed(seed, network);
         const child = masterNode.derivePath(path);
         const BitcoinPrivateKey = child.toWIF();
-        // console.log("tututut",BitcoinPrivateKey);
+        // //console.log("tututut",BitcoinPrivateKey);
 
         const keyPair = bitcoin.ECPair.fromWIF(BitcoinPrivateKey, network);
         const BitcoinPublicKey = child.publicKey?.toString("hex");
@@ -67,19 +64,19 @@ function BitcoinWallet(seed: any, index: number, env: string) {
             pubkey: keyPair.publicKey,
             network: network,
         });
-        // console.log(address, "bitcoin address");
-        // console.log(
+        // //console.log(address, "bitcoin address");
+        // //console.log(
         //   BitcoinPublicKey,
         //   "BitcoinPublicKeyBitcoinPublicKeyBitcoinPublicKey"
         // );
-        // console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
+        // //console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
         return {
-            address,
-            BitcoinPublicKey,
-            BitcoinPrivateKey,
+            bitcoinAddress: address,
+            bitcoinPublicKey: BitcoinPublicKey,
+            bitcoinPrivateKey: BitcoinPrivateKey
         };
     } else {
-        console.log("Error 404..");
+        //console.log("Error 404..");
     }
 }
 
@@ -99,13 +96,13 @@ function Etherwallet(seed: any, index: number) {
     const EthereumAddress = Wallet.EthereumAddress.from(
         EthereumwalletPublicKey
     ).address;
-    // console.log(EthereumAddress, "ethereum address");
-    // console.log(EthereumWalletPublicKeyHex, "ethereum publickey");
-    // console.log(EthereumWalletPrivateKeyHex, "ethereum private key");
+    // //console.log(EthereumAddress, "ethereum address");
+    // //console.log(EthereumWalletPublicKeyHex, "ethereum publickey");
+    // //console.log(EthereumWalletPrivateKeyHex, "ethereum private key");
     return {
-        EthereumAddress,
-        EthereumWalletPublicKeyHex,
-        EthereumWalletPrivateKeyHex,
+        ethereumAddress: EthereumAddress,
+        ethereumPublicKey: EthereumWalletPublicKeyHex,
+        ethereumPrivateKey: EthereumWalletPrivateKeyHex,
     };
 }
 
@@ -119,14 +116,14 @@ function Tronwallet(seed: any, index: number) {
     const TronWalletPrivateKey = tronwallet.privateKey?.toString("hex");
     const TronWalletPublicKey = tronwallet.publicKey?.toString("hex");
     const TronAddress = TronWeb.address.fromPrivateKey(TronWalletPrivateKey);
-    // console.log("----------------------------");
-    // console.log(TronAddress, "TronAddress");
-    // console.log(TronWalletPublicKey, "TronWalletPublicKey");
-    // console.log(TronWalletPrivateKey, "TronWalletPrivateKey");
+    // //console.log("----------------------------");
+    // //console.log(TronAddress, "TronAddress");
+    // //console.log(TronWalletPublicKey, "TronWalletPublicKey");
+    // //console.log(TronWalletPrivateKey, "TronWalletPrivateKey");
     return {
-        TronAddress,
-        TronWalletPublicKey,
-        TronWalletPrivateKey,
+        tronAddress: TronAddress,
+        tronPublicKey: TronWalletPublicKey,
+        tronPrivateKey: TronWalletPrivateKey
     };
 }
 
@@ -138,13 +135,13 @@ export const _importEthereumAccountFromPrivateKey = async (
             return ('invalid private key')
         }
         const wallet = new ethers.Wallet(_privateKey);
-        console.log(await wallet.getAddress());
+        //console.log(await wallet.getAddress());
         return ({ publicAddress: await wallet.getAddress() });
     } catch (e: any) {
         return `Please use a valid Private key for Ethereum Networks ${e}`
     }
 };
-function isValidPrivateKey(privateKey:any) {
+function isValidPrivateKey(privateKey: any) {
     try {
         // Create an instance of Wallet from the private key
         const wallet = new ethers.Wallet(privateKey);
@@ -166,14 +163,14 @@ export const _importTronAccountFromPrivateKey = (_privateKey: string) => {
             return "Invalid Tron PrivateKey"
         }
         const TronAddress = TronWeb.address.fromPrivateKey(_privateKey);
-        console.log(TronAddress, "TronAddress");
+        // //console.log(TronAddress, "TronAddress");
         return { publicAddress: TronAddress };
     } catch (e: any) {
         return `Please use Valid Private key for Tron Network ${e}`
     }
 };
 
-export const isValidTronPrivateKey = async (privateKey:any) => {
+export const isValidTronPrivateKey = async (privateKey: any) => {
     // Check if the private key is a hexadecimal string
     const isHex = /^[0-9A-Fa-f]{64}$/.test(privateKey);
 
@@ -188,7 +185,7 @@ export const _importBitcoinAccountFromPrivateKeyMain = (privateKey: string) => {
             pubkey: keyPair.publicKey,
         });
         const publicKey = pubkey?.toString("hex") || "";
-        console.log({ publicAddress: address, _publicKey: publicKey, _privateKey: privateKey });
+        // //console.log({ publicAddress: address, _publicKey: publicKey, _privateKey: privateKey });
         return { publicAddress: address };
     } catch (e: any) {
         return `  Please use a valid Private key for Bitcoin Mainnet Network ,${e}`;
@@ -203,7 +200,7 @@ export const _importBitcoinAccountFromPrivateKeyTest = (privateKey: string) => {
             pubkey: keyPair.publicKey,
             network: network,
         });
-        // console.log({
+        // //console.log({
         //     publicAddress: address,
         //     _publicKey: keyPair.publicKey.toString("hex"),
         //     _privateKey: privateKey,
@@ -221,7 +218,7 @@ function isValidEthereumAddress(address: string) {
         // Check if the address has the correct length and is a valid checksum address
         const validAddress = ethers.utils.getAddress(address);
         // Compare the formatted address with the input address
-        // console.log(validAddress.toLowerCase() === address.toLowerCase(),"validAddressvalidAddressvalidAddressvalidAddress")
+        // //console.log(validAddress.toLowerCase() === address.toLowerCase(),"validAddressvalidAddressvalidAddressvalidAddress")
         return validAddress.toLowerCase() === address.toLowerCase();
     } catch (error) {
         return false;
@@ -277,7 +274,7 @@ export const isValidAddress = async (_address: string, _network: number) => {
         // for Ethereum, Binance and Polygon (Mainnet and Testnet)
         const isValid = isValidEthereumAddress(_address);
         if (!isValid) {
-            console.log('Invalid Ethereum address.');
+            //console.log('Invalid Ethereum address.');
             return false;
         } else {
             return true;
@@ -287,7 +284,7 @@ export const isValidAddress = async (_address: string, _network: number) => {
         const network = "mainnet";
         const isValid = isValidTronAddress(_address, network);
         if (!isValid) {
-            console.log("Invalid Tron address.");
+            //console.log("Invalid Tron address.");
             return false;
         } else {
             return true;
@@ -295,7 +292,7 @@ export const isValidAddress = async (_address: string, _network: number) => {
     } else if (_network === 5) {
         // for Bitcoin (Mainnet)
         if (!isValidBitcoinAddress(_address)) {
-            console.log('Invalid Bitcoin mainnet address.');
+            //console.log('Invalid Bitcoin mainnet address.');
             return false;
         } else {
             return true;
@@ -303,7 +300,7 @@ export const isValidAddress = async (_address: string, _network: number) => {
     } else if (_network === 10) {
         // for Bitcoin (Testnet)
         if (!isValidBitcoinTestnetAddress(_address)) {
-            console.log('Invalid Bitcoin testnet address.');
+            //console.log('Invalid Bitcoin testnet address.');
             return false;
         } else {
             return true;
@@ -313,36 +310,44 @@ export const isValidAddress = async (_address: string, _network: number) => {
     }
 }
 
-export const getEthereumBalance = async (_address: string, _network: number) => {
+export const getEthereumBalance = async (_address: string, _network: number): Promise<balanceType> => {
     try {
         const _provider = await setProvider(_network);
         const balance = await (_provider.getBalance(_address));
-        console.log("EVM Balance", balance.toString());
-        return balance.toString();
+        //console.log("EVM Balance", balance.toString());
+        return { balance: (balance / (10 ** 18)).toString(), error: null };
     } catch (e: any) {
-        console.log("Error while fetching balance for EVM n/w", e)
-        return -1;
+        //console.log("Error while fetching balance for EVM n/w", e)
+        return { balance: "-1", error: null };
     }
 }
 
 export async function getTronBalanceTest(address: string) {
-    const HttpProvider = TronWeb.providers.HttpProvider;
-    const fullNode = new HttpProvider("https://api.nileex.io");
-    const solidityNode = new HttpProvider("https://api.nileex.io");
-    const eventServer = new HttpProvider("https://api.nileex.io");
-    const tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
-    const _balance = await tronWeb.trx.getBalance(address);
-    return _balance;
+    try {
+        const HttpProvider = TronWeb.providers.HttpProvider;
+        const fullNode = new HttpProvider("https://api.nileex.io");
+        const solidityNode = new HttpProvider("https://api.nileex.io");
+        const eventServer = new HttpProvider("https://api.nileex.io");
+        const tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
+        const _balance = await tronWeb.trx.getBalance(address);
+        return { balance: _balance };
+    } catch (e: any) {
+        return { balance: "-1", error: e };
+    }
 }
 
 export async function getTronBalanceMain(address: string) {
-    const HttpProvider = TronWeb.providers.HttpProvider;
-    const fullNode = new HttpProvider("https://api.trongrid.io");
-    const solidityNode = new HttpProvider("https://api.trongrid.io");
-    const eventServer = new HttpProvider("https://api.trongrid.io");
-    const tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
-    const _balance = await tronWeb.trx.getBalance(address);
-    return _balance;
+    try {
+        const HttpProvider = TronWeb.providers.HttpProvider;
+        const fullNode = new HttpProvider("https://api.trongrid.io");
+        const solidityNode = new HttpProvider("https://api.trongrid.io");
+        const eventServer = new HttpProvider("https://api.trongrid.io");
+        const tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
+        const _balance = await tronWeb.trx.getBalance(address);
+        return { balance: _balance };
+    } catch (e: any) {
+        return { balance: "-1", error: e };
+    }
 }
 
 export async function getMainnetBitcoinBalance(_address: string) {
@@ -358,14 +363,14 @@ export async function getMainnetBitcoinBalance(_address: string) {
 
     axios.request(config)
         .then((response) => {
-            console.log(JSON.stringify(response.data));
-            console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
+            //console.log(JSON.stringify(response.data));
+            //console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
             let data = parseFloat(response.data.incoming) - parseFloat(response.data.outgoing)
-            console.log(data)
+            //console.log(data)
             result = data;
         })
         .catch((error) => {
-            console.log(error);
+            //console.log(error);
         });
     return result;
 }
@@ -383,14 +388,14 @@ export async function getTestnetBitcoinBalance(_address: string) {
 
     axios.request(config)
         .then((response) => {
-            console.log(JSON.stringify(response.data));
-            console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
+            //console.log(JSON.stringify(response.data));
+            //console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
             let data = parseFloat(response.data.incoming) - parseFloat(response.data.outgoing)
-            console.log(data)
+            //console.log(data)
             result = data;
         })
         .catch((error) => {
-            console.log(error);
+            //console.log(error);
         });
     return result;
 }
@@ -403,7 +408,7 @@ export const sendEVMNativeTokens = async (_fromAddress: string, _privateKey: str
         const walletSigner = wallet.connect(_provider);
         const etherBalance = await getEthereumBalance(_fromAddress, _network);
         const balance = await (_provider.getBalance(_fromAddress));
-        console.log(Number((balance).toString()) / (10 ** 18), "user account balance");
+        //console.log(Number((balance).toString()) / (10 ** 18), "user account balance");
 
         if (_provider) {
             if (Number(balance) / (10 ** 18) > Number(_amount)) {
@@ -424,21 +429,21 @@ export const sendEVMNativeTokens = async (_fromAddress: string, _privateKey: str
                         }
                         try {
                             const response: any = await walletSigner.sendTransaction(tx);
-                            console.log("_+__+_++__++_+__+_++_+__+", await response, "_+__+_++__++_+__+_++_+__+");
+                            //console.log("_+__+_++__++_+__+_++_+__+", await response, "_+__+_++__++_+__+_++_+__+");
                             _resposne = { message: "Native Token Sent Successfully", data: await response, status: true };
                             return _resposne;
                         } catch (error: any) {
-                            console.log("failed to send!!");
+                            //console.log("failed to send!!");
                             _resposne = { message: "Failed to Complete Send", data: error, status: false };
                             return _resposne;
                         }
                     } else {
-                        console.log("Low ETH Balance - Please Deposit ETH to Complete Transaction");
+                        //console.log("Low ETH Balance - Please Deposit ETH to Complete Transaction");
                         _resposne = { message: "Low ETH Balance - Please Deposit ETH to Complete Transaction", data: "", status: false };
                         return _resposne;
                     }
                 }).catch((e: any) => {
-                    console.log("Error while Fetching gasPrice", e);
+                    //console.log("Error while Fetching gasPrice", e);
                     _resposne = { message: "Error while Fetching gasPrice", data: e, status: false };
                     return _resposne;
                 })
@@ -447,12 +452,12 @@ export const sendEVMNativeTokens = async (_fromAddress: string, _privateKey: str
                 return _resposne;
             }
         } else {
-            console.log("couldn't get the provider");
+            //console.log("couldn't get the provider");
             _resposne = { message: "couldn't get the provider", data: "", status: false };
             return _resposne;
         }
     } catch (error) {
-        console.log(error, "Unknown Error while Sending Tokens");
+        //console.log(error, "Unknown Error while Sending Tokens");
         _resposne = { message: "Unknown Error while Sending Tokens", data: "", status: false };
         return _resposne;
     }
@@ -531,7 +536,7 @@ export async function getEthereumGasPrice(_chainId: string | number, _privateKey
         });
         const gasFees = estimatedGas.mul(gasPrice);
         const gasFeesInEther = ethers.utils.formatEther(gasFees);
-        console.log({ gasPrice: convertedPrice, gasFees: gasFees, gasFeesInEther: gasFeesInEther });
+        //console.log({ gasPrice: convertedPrice, gasFees: gasFees, gasFeesInEther: gasFeesInEther });
         return { data: { gasPrice: convertedPrice, gasFees: gasFees, gasFeesInEther: gasFeesInEther }, message: "", status: true };
     } catch (e: any) {
         return { data: e, message: "couldn't get gas fees", status: false };
@@ -555,9 +560,9 @@ export const getTronResourceConsumption = async (
         const sunRequired = bandwidth * 10;
         const trxRequired = sunRequired / 1000000;
 
-        console.log("Bandwidth:", bandwidth);
-        console.log("SUN required:", sunRequired);
-        console.log("TRX required:", trxRequired);
+        //console.log("Bandwidth:", bandwidth);
+        //console.log("SUN required:", sunRequired);
+        //console.log("TRX required:", trxRequired);
         return { data: { bandwidth, sunRequired, }, message: "gasFees Fetched..!", status: true };
     }
     catch (e: any) {
@@ -635,7 +640,7 @@ export const getTransactionsForEVM = async (
         response = { data: _response, message: "transactions fetched!", status: true };
         return response;
     } catch (e: any) {
-        console.log("Error while Fetching bitcoin Transactions");
+        //console.log("Error while Fetching bitcoin Transactions");
         return e;
     }
 };
@@ -668,16 +673,16 @@ export const getTransactionsFromTatumMain = async (
             },
         };
         await axios.request(config).then((axiosResponse: any) => {
-            // console.log(JSON.stringify(axiosResponse.data), "data"); 
+            // //console.log(JSON.stringify(axiosResponse.data), "data"); 
             response = { data: JSON.stringify(axiosResponse.data), message: "Transaction fetched..!", status: true };
             return response;
         }).catch((error) => {
-            console.log(error);
+            //console.log(error);
             response = { data: error, message: "Unexpected Error while getting Tron Trnmsactions", status: false };
             return response;
         });
     } catch (e: any) {
-        console.log("Error while fetching Transactions from TATUM", e);
+        //console.log("Error while fetching Transactions from TATUM", e);
         response = { data: e, message: "Unexpected Error while getting Tron Trnmsactions", status: false };
         return response;
     }
@@ -716,18 +721,31 @@ export const getTransactionsFromTatumTest = async (
         axios
             .request(config)
             .then((axiosResponse: any) => {
-                console.log(JSON.stringify(axiosResponse.data), "data");
+                //console.log(JSON.stringify(axiosResponse.data), "data");
                 response = JSON.stringify(axiosResponse.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
                 response = error;
             });
 
         return response;
     } catch (e: any) {
-        console.log("Error while fetching Transactions from TATUM", e);
+        //console.log("Error while fetching Transactions from TATUM", e);
         response = e;
         return response;
     }
 };
+
+export const networkId = {
+    ethereum: 1,
+    binance: 2,
+    polygon: 3,
+    tron: 4,
+    bitcoin: 5,
+    sepolia: 6,
+    binance_test: 7,
+    mumbai: 8,
+    tron_test: 9,
+    bitcoin_test: 10
+}

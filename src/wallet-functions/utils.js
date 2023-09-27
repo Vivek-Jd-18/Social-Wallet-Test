@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTransactionsFromTatumTest = exports.getTransactionsFromTatumMain = exports.getTransactionsForEVM = exports.getNetworkHex = exports.getEstimatedFeesBitcoinMain = exports.getEstimatedFeesBitcoinTest = exports.getTronResourceConsumption = exports.getEthereumGasPrice = exports.transferBitcoin = exports.sendNativeTronTest = exports.sendNativeTronMain = exports.sendEVMNativeTokens = exports.getTestnetBitcoinBalance = exports.getMainnetBitcoinBalance = exports.getTronBalanceMain = exports.getTronBalanceTest = exports.getEthereumBalance = exports.isValidAddress = exports._importBitcoinAccountFromPrivateKeyTest = exports._importBitcoinAccountFromPrivateKeyMain = exports.isValidTronPrivateKey = exports._importTronAccountFromPrivateKey = exports._importEthereumAccountFromPrivateKey = exports._fetchAccountsByIndex = void 0;
+exports.networkId = exports.getTransactionsFromTatumTest = exports.getTransactionsFromTatumMain = exports.getTransactionsForEVM = exports.getNetworkHex = exports.getEstimatedFeesBitcoinMain = exports.getEstimatedFeesBitcoinTest = exports.getTronResourceConsumption = exports.getEthereumGasPrice = exports.transferBitcoin = exports.sendNativeTronTest = exports.sendNativeTronMain = exports.sendEVMNativeTokens = exports.getTestnetBitcoinBalance = exports.getMainnetBitcoinBalance = exports.getTronBalanceMain = exports.getTronBalanceTest = exports.getEthereumBalance = exports.isValidAddress = exports._importBitcoinAccountFromPrivateKeyTest = exports._importBitcoinAccountFromPrivateKeyMain = exports.isValidTronPrivateKey = exports._importTronAccountFromPrivateKey = exports._importEthereumAccountFromPrivateKey = exports._fetchAccountsByIndex = void 0;
 const chainHelpers_1 = require("./chainHelpers");
 const axios_1 = __importDefault(require("axios"));
 const bitCoinHelper_1 = require("./bitCoinHelper");
@@ -27,14 +27,14 @@ function _fetchAccountsByIndex(phrase, index, env) {
     const seed = bip39.mnemonicToSeedSync(phrase, "");
     const bitcoinseed = Buffer.from(seed);
     const bitcoinWallet = BitcoinWallet(bitcoinseed, index, env);
-    const etherwallet = Etherwallet(seed, index);
-    const tronwallet = Tronwallet(seed, index);
-    // console.log(phrase, bitcoinWallet, etherwallet, tronwallet);
+    const ethereumWallet = Etherwallet(seed, index);
+    const tronWallet = Tronwallet(seed, index);
+    // //console.log(phrase, bitcoinWallet, etherwallet, tronwallet);
     return {
         phrase,
         bitcoinWallet,
-        etherwallet,
-        tronwallet,
+        ethereumWallet,
+        tronWallet
     };
 }
 exports._fetchAccountsByIndex = _fetchAccountsByIndex;
@@ -52,17 +52,14 @@ function BitcoinWallet(seed, index, env) {
             pubkey: keyPair.publicKey,
             network: network,
         });
-        // console.log(address, "bitcoin address");
+        // //console.log(address, "bitcoin address");
         const BitcoinPublicKey = (_a = keyPair.publicKey) === null || _a === void 0 ? void 0 : _a.toString("hex");
-        // console.log(
-        //   BitcoinPublicKey,
-        //   "BitcoinPublicKeyBitcoinPublicKeyBitcoinPublicKey"
-        // );
-        // console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
+        // //console.log(BitcoinPublicKey,"BitcoinPublicKeyBitcoinPublicKeyBitcoinPublicKey");
+        // //console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
         return {
-            address,
-            BitcoinPublicKey,
-            BitcoinPrivateKey,
+            bitcoinAddress: address,
+            bitcoinPublicKey: BitcoinPublicKey,
+            bitcoinPrivateKey: BitcoinPrivateKey
         };
     }
     else if (env == "mainnet") {
@@ -71,27 +68,27 @@ function BitcoinWallet(seed, index, env) {
         const masterNode = bitcoin.bip32.fromSeed(seed, network);
         const child = masterNode.derivePath(path);
         const BitcoinPrivateKey = child.toWIF();
-        // console.log("tututut",BitcoinPrivateKey);
+        // //console.log("tututut",BitcoinPrivateKey);
         const keyPair = bitcoin.ECPair.fromWIF(BitcoinPrivateKey, network);
         const BitcoinPublicKey = (_b = child.publicKey) === null || _b === void 0 ? void 0 : _b.toString("hex");
         const { address } = bitcoin.payments.p2pkh({
             pubkey: keyPair.publicKey,
             network: network,
         });
-        // console.log(address, "bitcoin address");
-        // console.log(
+        // //console.log(address, "bitcoin address");
+        // //console.log(
         //   BitcoinPublicKey,
         //   "BitcoinPublicKeyBitcoinPublicKeyBitcoinPublicKey"
         // );
-        // console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
+        // //console.log(BitcoinPrivateKey, "bitcoin PrivateKey");
         return {
-            address,
-            BitcoinPublicKey,
-            BitcoinPrivateKey,
+            bitcoinAddress: address,
+            bitcoinPublicKey: BitcoinPublicKey,
+            bitcoinPrivateKey: BitcoinPrivateKey
         };
     }
     else {
-        console.log("Error 404..");
+        //console.log("Error 404..");
     }
 }
 // Create Ethereum Wallet
@@ -105,13 +102,13 @@ function Etherwallet(seed, index) {
     const EthereumWalletPrivateKeyHex = EthereumwalletPrivateKey === null || EthereumwalletPrivateKey === void 0 ? void 0 : EthereumwalletPrivateKey.toString("hex");
     const EthereumWalletPublicKeyHex = EthereumwalletPublicKey === null || EthereumwalletPublicKey === void 0 ? void 0 : EthereumwalletPublicKey.toString("hex");
     const EthereumAddress = Wallet.EthereumAddress.from(EthereumwalletPublicKey).address;
-    // console.log(EthereumAddress, "ethereum address");
-    // console.log(EthereumWalletPublicKeyHex, "ethereum publickey");
-    // console.log(EthereumWalletPrivateKeyHex, "ethereum private key");
+    // //console.log(EthereumAddress, "ethereum address");
+    // //console.log(EthereumWalletPublicKeyHex, "ethereum publickey");
+    // //console.log(EthereumWalletPrivateKeyHex, "ethereum private key");
     return {
-        EthereumAddress,
-        EthereumWalletPublicKeyHex,
-        EthereumWalletPrivateKeyHex,
+        ethereumAddress: EthereumAddress,
+        ethereumPublicKey: EthereumWalletPublicKeyHex,
+        ethereumPrivateKey: EthereumWalletPrivateKeyHex,
     };
 }
 // Create Tron Wallet
@@ -124,14 +121,14 @@ function Tronwallet(seed, index) {
     const TronWalletPrivateKey = (_a = tronwallet.privateKey) === null || _a === void 0 ? void 0 : _a.toString("hex");
     const TronWalletPublicKey = (_b = tronwallet.publicKey) === null || _b === void 0 ? void 0 : _b.toString("hex");
     const TronAddress = TronWeb.address.fromPrivateKey(TronWalletPrivateKey);
-    // console.log("----------------------------");
-    // console.log(TronAddress, "TronAddress");
-    // console.log(TronWalletPublicKey, "TronWalletPublicKey");
-    // console.log(TronWalletPrivateKey, "TronWalletPrivateKey");
+    // //console.log("----------------------------");
+    // //console.log(TronAddress, "TronAddress");
+    // //console.log(TronWalletPublicKey, "TronWalletPublicKey");
+    // //console.log(TronWalletPrivateKey, "TronWalletPrivateKey");
     return {
-        TronAddress,
-        TronWalletPublicKey,
-        TronWalletPrivateKey,
+        tronAddress: TronAddress,
+        tronPublicKey: TronWalletPublicKey,
+        tronPrivateKey: TronWalletPrivateKey
     };
 }
 const _importEthereumAccountFromPrivateKey = (_privateKey) => __awaiter(void 0, void 0, void 0, function* () {
@@ -140,7 +137,7 @@ const _importEthereumAccountFromPrivateKey = (_privateKey) => __awaiter(void 0, 
             return ('invalid private key');
         }
         const wallet = new ethers.Wallet(_privateKey);
-        console.log(yield wallet.getAddress());
+        //console.log(await wallet.getAddress());
         return ({ publicAddress: yield wallet.getAddress() });
     }
     catch (e) {
@@ -170,7 +167,7 @@ const _importTronAccountFromPrivateKey = (_privateKey) => {
             return "Invalid Tron PrivateKey";
         }
         const TronAddress = TronWeb.address.fromPrivateKey(_privateKey);
-        console.log(TronAddress, "TronAddress");
+        // //console.log(TronAddress, "TronAddress");
         return { publicAddress: TronAddress };
     }
     catch (e) {
@@ -192,7 +189,7 @@ const _importBitcoinAccountFromPrivateKeyMain = (privateKey) => {
             pubkey: keyPair.publicKey,
         });
         const publicKey = (pubkey === null || pubkey === void 0 ? void 0 : pubkey.toString("hex")) || "";
-        console.log({ publicAddress: address, _publicKey: publicKey, _privateKey: privateKey });
+        // //console.log({ publicAddress: address, _publicKey: publicKey, _privateKey: privateKey });
         return { publicAddress: address };
     }
     catch (e) {
@@ -208,7 +205,7 @@ const _importBitcoinAccountFromPrivateKeyTest = (privateKey) => {
             pubkey: keyPair.publicKey,
             network: network,
         });
-        // console.log({
+        // //console.log({
         //     publicAddress: address,
         //     _publicKey: keyPair.publicKey.toString("hex"),
         //     _privateKey: privateKey,
@@ -227,7 +224,7 @@ function isValidEthereumAddress(address) {
         // Check if the address has the correct length and is a valid checksum address
         const validAddress = ethers.utils.getAddress(address);
         // Compare the formatted address with the input address
-        // console.log(validAddress.toLowerCase() === address.toLowerCase(),"validAddressvalidAddressvalidAddressvalidAddress")
+        // //console.log(validAddress.toLowerCase() === address.toLowerCase(),"validAddressvalidAddressvalidAddressvalidAddress")
         return validAddress.toLowerCase() === address.toLowerCase();
     }
     catch (error) {
@@ -278,7 +275,7 @@ const isValidAddress = (_address, _network) => __awaiter(void 0, void 0, void 0,
         // for Ethereum, Binance and Polygon (Mainnet and Testnet)
         const isValid = isValidEthereumAddress(_address);
         if (!isValid) {
-            console.log('Invalid Ethereum address.');
+            //console.log('Invalid Ethereum address.');
             return false;
         }
         else {
@@ -290,7 +287,7 @@ const isValidAddress = (_address, _network) => __awaiter(void 0, void 0, void 0,
         const network = "mainnet";
         const isValid = isValidTronAddress(_address, network);
         if (!isValid) {
-            console.log("Invalid Tron address.");
+            //console.log("Invalid Tron address.");
             return false;
         }
         else {
@@ -300,7 +297,7 @@ const isValidAddress = (_address, _network) => __awaiter(void 0, void 0, void 0,
     else if (_network === 5) {
         // for Bitcoin (Mainnet)
         if (!isValidBitcoinAddress(_address)) {
-            console.log('Invalid Bitcoin mainnet address.');
+            //console.log('Invalid Bitcoin mainnet address.');
             return false;
         }
         else {
@@ -310,7 +307,7 @@ const isValidAddress = (_address, _network) => __awaiter(void 0, void 0, void 0,
     else if (_network === 10) {
         // for Bitcoin (Testnet)
         if (!isValidBitcoinTestnetAddress(_address)) {
-            console.log('Invalid Bitcoin testnet address.');
+            //console.log('Invalid Bitcoin testnet address.');
             return false;
         }
         else {
@@ -326,12 +323,12 @@ const getEthereumBalance = (_address, _network) => __awaiter(void 0, void 0, voi
     try {
         const _provider = yield (0, chainHelpers_1.setProvider)(_network);
         const balance = yield (_provider.getBalance(_address));
-        console.log("EVM Balance", balance.toString());
-        return balance.toString();
+        //console.log("EVM Balance", balance.toString());
+        return (balance / (10 ** 18)).toString();
     }
     catch (e) {
-        console.log("Error while fetching balance for EVM n/w", e);
-        return -1;
+        //console.log("Error while fetching balance for EVM n/w", e)
+        return "-1";
     }
 });
 exports.getEthereumBalance = getEthereumBalance;
@@ -373,14 +370,14 @@ function getMainnetBitcoinBalance(_address) {
         };
         axios_1.default.request(config)
             .then((response) => {
-            console.log(JSON.stringify(response.data));
-            console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
+            //console.log(JSON.stringify(response.data));
+            //console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
             let data = parseFloat(response.data.incoming) - parseFloat(response.data.outgoing);
-            console.log(data);
+            //console.log(data)
             result = data;
         })
             .catch((error) => {
-            console.log(error);
+            //console.log(error);
         });
         return result;
     });
@@ -400,14 +397,14 @@ function getTestnetBitcoinBalance(_address) {
         };
         axios_1.default.request(config)
             .then((response) => {
-            console.log(JSON.stringify(response.data));
-            console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
+            //console.log(JSON.stringify(response.data));
+            //console.log("Available Balanace ", JSON.stringify(parseFloat(response.data.incoming) + parseFloat(response.data.incoming)));
             let data = parseFloat(response.data.incoming) - parseFloat(response.data.outgoing);
-            console.log(data);
+            //console.log(data)
             result = data;
         })
             .catch((error) => {
-            console.log(error);
+            //console.log(error);
         });
         return result;
     });
@@ -421,7 +418,7 @@ const sendEVMNativeTokens = (_fromAddress, _privateKey, _toAddress, _amount, _ne
         const walletSigner = wallet.connect(_provider);
         const etherBalance = yield (0, exports.getEthereumBalance)(_fromAddress, _network);
         const balance = yield (_provider.getBalance(_fromAddress));
-        console.log(Number((balance).toString()) / (10 ** 18), "user account balance");
+        //console.log(Number((balance).toString()) / (10 ** 18), "user account balance");
         if (_provider) {
             if (Number(balance) / (10 ** 18) > Number(_amount)) {
                 _provider.getGasPrice().then((currentGasPrice) => __awaiter(void 0, void 0, void 0, function* () {
@@ -438,23 +435,23 @@ const sendEVMNativeTokens = (_fromAddress, _privateKey, _toAddress, _amount, _ne
                         };
                         try {
                             const response = yield walletSigner.sendTransaction(tx);
-                            console.log("_+__+_++__++_+__+_++_+__+", yield response, "_+__+_++__++_+__+_++_+__+");
+                            //console.log("_+__+_++__++_+__+_++_+__+", await response, "_+__+_++__++_+__+_++_+__+");
                             _resposne = { message: "Native Token Sent Successfully", data: yield response, status: true };
                             return _resposne;
                         }
                         catch (error) {
-                            console.log("failed to send!!");
+                            //console.log("failed to send!!");
                             _resposne = { message: "Failed to Complete Send", data: error, status: false };
                             return _resposne;
                         }
                     }
                     else {
-                        console.log("Low ETH Balance - Please Deposit ETH to Complete Transaction");
+                        //console.log("Low ETH Balance - Please Deposit ETH to Complete Transaction");
                         _resposne = { message: "Low ETH Balance - Please Deposit ETH to Complete Transaction", data: "", status: false };
                         return _resposne;
                     }
                 })).catch((e) => {
-                    console.log("Error while Fetching gasPrice", e);
+                    //console.log("Error while Fetching gasPrice", e);
                     _resposne = { message: "Error while Fetching gasPrice", data: e, status: false };
                     return _resposne;
                 });
@@ -465,13 +462,13 @@ const sendEVMNativeTokens = (_fromAddress, _privateKey, _toAddress, _amount, _ne
             }
         }
         else {
-            console.log("couldn't get the provider");
+            //console.log("couldn't get the provider");
             _resposne = { message: "couldn't get the provider", data: "", status: false };
             return _resposne;
         }
     }
     catch (error) {
-        console.log(error, "Unknown Error while Sending Tokens");
+        //console.log(error, "Unknown Error while Sending Tokens");
         _resposne = { message: "Unknown Error while Sending Tokens", data: "", status: false };
         return _resposne;
     }
@@ -537,7 +534,7 @@ function getEthereumGasPrice(_chainId, _privateKey, _toAddress, _amount) {
             });
             const gasFees = estimatedGas.mul(gasPrice);
             const gasFeesInEther = ethers.utils.formatEther(gasFees);
-            console.log({ gasPrice: convertedPrice, gasFees: gasFees, gasFeesInEther: gasFeesInEther });
+            //console.log({ gasPrice: convertedPrice, gasFees: gasFees, gasFeesInEther: gasFeesInEther });
             return { data: { gasPrice: convertedPrice, gasFees: gasFees, gasFeesInEther: gasFeesInEther }, message: "", status: true };
         }
         catch (e) {
@@ -557,9 +554,9 @@ const getTronResourceConsumption = (_sender, _to, _amount) => __awaiter(void 0, 
         const bandwidth = rawData.length + 128;
         const sunRequired = bandwidth * 10;
         const trxRequired = sunRequired / 1000000;
-        console.log("Bandwidth:", bandwidth);
-        console.log("SUN required:", sunRequired);
-        console.log("TRX required:", trxRequired);
+        //console.log("Bandwidth:", bandwidth);
+        //console.log("SUN required:", sunRequired);
+        //console.log("TRX required:", trxRequired);
         return { data: { bandwidth, sunRequired, }, message: "gasFees Fetched..!", status: true };
     }
     catch (e) {
@@ -636,7 +633,7 @@ const getTransactionsForEVM = (_network, _account) => __awaiter(void 0, void 0, 
         return response;
     }
     catch (e) {
-        console.log("Error while Fetching bitcoin Transactions");
+        //console.log("Error while Fetching bitcoin Transactions");
         return e;
     }
 });
@@ -668,17 +665,17 @@ const getTransactionsFromTatumMain = (_chain, _address) => __awaiter(void 0, voi
             },
         };
         yield axios_1.default.request(config).then((axiosResponse) => {
-            // console.log(JSON.stringify(axiosResponse.data), "data"); 
+            // //console.log(JSON.stringify(axiosResponse.data), "data"); 
             response = { data: JSON.stringify(axiosResponse.data), message: "Transaction fetched..!", status: true };
             return response;
         }).catch((error) => {
-            console.log(error);
+            //console.log(error);
             response = { data: error, message: "Unexpected Error while getting Tron Trnmsactions", status: false };
             return response;
         });
     }
     catch (e) {
-        console.log("Error while fetching Transactions from TATUM", e);
+        //console.log("Error while fetching Transactions from TATUM", e);
         response = { data: e, message: "Unexpected Error while getting Tron Trnmsactions", status: false };
         return response;
     }
@@ -714,19 +711,31 @@ const getTransactionsFromTatumTest = (_chain, _address) => __awaiter(void 0, voi
         axios_1.default
             .request(config)
             .then((axiosResponse) => {
-            console.log(JSON.stringify(axiosResponse.data), "data");
+            //console.log(JSON.stringify(axiosResponse.data), "data");
             response = JSON.stringify(axiosResponse.data);
         })
             .catch((error) => {
-            console.log(error);
+            //console.log(error);
             response = error;
         });
         return response;
     }
     catch (e) {
-        console.log("Error while fetching Transactions from TATUM", e);
+        //console.log("Error while fetching Transactions from TATUM", e);
         response = e;
         return response;
     }
 });
 exports.getTransactionsFromTatumTest = getTransactionsFromTatumTest;
+exports.networkId = {
+    ethereum: 1,
+    binance: 2,
+    polygon: 3,
+    tron: 4,
+    bitcoin: 5,
+    sepolia: 6,
+    binance_test: 7,
+    mumbai: 8,
+    tron_test: 9,
+    bitcoin_test: 10
+};

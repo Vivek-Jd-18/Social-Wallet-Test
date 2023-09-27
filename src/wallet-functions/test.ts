@@ -4,7 +4,7 @@ const { randomBytes } = require("crypto");
 const Wallet = require("wallet.ts");
 const bip39 = require("@scure/bip39");
 import * as ecc from 'tiny-secp256k1';
-import { estimateGasFeesType, sendNativeType, transactionType } from "./types";
+import { balanceType, estimateGasFeesType, sendNativeType, transactionType } from "./types";
 
 // 1 ) Create Wallet Function
 export const createWallet = (env: string) => {
@@ -73,20 +73,21 @@ export const importAccountFromPhraseAndIndex = async (
 }
 
 // 5 ) Get Balance of Native Token ~ Pendng (haved to fix EVM bal by Moralis)
-export const getBalance = async (_address: string, _network: number) => {
+export const getBalance = async (_address: string, _network: number):Promise<balanceType> => {
     const validAddress: boolean = await isValidAddress(_address, _network);
     if (!validAddress) {
-        return "Invalid Address";
+        return {balance:"-1",error:"Invalid Address"};
     }
     if (_network === 1 || _network === 2 || _network === 3 || _network === 6 || _network === 7 || _network === 8) {
         // for Ethereum, Binance and Polygon (Mainnet and Testnet)
         console.log("For EVM");
-        return { balance: await getEthereumBalance(_address, _network) };
-    } else if (_network === 4 || _network === 9) {
+        const evmRes = await getEthereumBalance(_address, _network);
+        return { balance: evmRes.balance  ,error: evm };
+    } else if (_network === 4) {
         // for Tron (Mainnet)
         console.log("For TRON MAIN");
         return await getTronBalanceMain(_address);
-    } else if (_network === 4 || _network === 9) {
+    } else if (_network === 9) {
         // for Tron (Testnet)
         console.log("For TRON TEST");
         return await getTronBalanceTest(_address);

@@ -15,3 +15,8 @@ export type transactionType = {
     message: string;
     status: boolean;
 }
+
+export type balanceType = {
+    balance:string;
+    error:any
+}
